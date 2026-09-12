@@ -6,6 +6,7 @@ fewest words first, then highest total link score.
 from __future__ import annotations
 
 from collections import deque
+from pathlib import Path
 from dataclasses import dataclass
 
 import numpy as np
@@ -50,6 +51,22 @@ class Graph:
 
     def weight(self, a: str, b: str) -> float | None:
         return self.adj[self._index[a]].get(self._index[b])
+
+    def save(self, path: Path) -> None:
+        a, b, w = [], [], []
+        for i, nbrs in enumerate(self.adj):
+            for j, s in nbrs.items():
+                if i < j:
+                    a.append(i); b.append(j); w.append(s)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(path, words=np.array(self.words), a=np.array(a, dtype=np.int32),
+                            b=np.array(b, dtype=np.int32), w=np.array(w, dtype=np.float32))
+
+    @classmethod
+    def load(cls, path: Path) -> "Graph":
+        z = np.load(path)
+        edges = {(int(i), int(j)): float(s) for i, j, s in zip(z["a"], z["b"], z["w"])}
+        return cls(z["words"].tolist(), edges)
 
     @classmethod
     def build(cls, sim: Similarity, threshold: float = THRESHOLD, chunk: int = 1024, progress=None) -> "Graph":

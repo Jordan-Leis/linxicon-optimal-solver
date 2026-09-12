@@ -55,3 +55,13 @@ def test_build_from_vectors_uses_threshold_and_boosts():
     assert g.weight("box", "chest") == pytest.approx(0.8)
     assert g.weight("box", "setting") is None  # cos 0.6 < threshold
     assert g.weight("chest", "setting") == 1.0  # cos 0.0 but boosted -> edge
+
+
+def test_graph_save_and_load_roundtrip(tmp_path):
+    g = toy()
+    p = tmp_path / "g.npz"
+    g.save(p)
+    g2 = Graph.load(p)
+    assert g2.words == g.words
+    assert g2.weight("tl", "b") == pytest.approx(0.9)
+    assert [c.words for c in g2.shortest_chains("tl", "br", k=2)] == [c.words for c in g.shortest_chains("tl", "br", k=2)]
