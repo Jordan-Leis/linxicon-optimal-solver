@@ -9,6 +9,7 @@ from typing import Callable, Iterable
 from .rules import MAX_WORD_LEN, MIN_WORD_LEN
 
 ENABLE_URL = "https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt"
+DEFAULT_MIN_ZIPF = 2.0
 
 
 def is_valid_word(word: str) -> bool:
@@ -32,7 +33,7 @@ def load_enable(path: Path) -> list[str]:
     return path.read_text().split()
 
 
-def build_vocab(enable_path: Path, min_zipf: float = 3.0) -> list[str]:
+def build_vocab(enable_path: Path, min_zipf: float = DEFAULT_MIN_ZIPF) -> list[str]:
     from wordfreq import zipf_frequency
 
     return filter_words(load_enable(enable_path), min_zipf, lambda w: zipf_frequency(w, "en"))

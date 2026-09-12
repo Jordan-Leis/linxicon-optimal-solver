@@ -12,7 +12,8 @@ Reverse-engineered (2026-09-12) by comparing ~1,000 pair scores from the
   (verified 100% on ~75 pairs where cosine alone was below threshold)
 * the server occasionally returns other boosts (0.4 for some WordNet
   siblings, 0.3+0.4*cos for some others) that we cannot predict; they only
-  ever *raise* a score, so local scores are a safe lower bound.
+  ever *raise* a score in the captured sample. This is an observation, not
+  a guarantee about all pairs or future server versions.
 """
 from __future__ import annotations
 
@@ -26,15 +27,22 @@ import numpy as np
 NUMBERBATCH_URL = "https://conceptnet.s3.amazonaws.com/downloads/2019/numberbatch/numberbatch-en-19.08.txt.gz"
 SYNONYM_BOOST = 1.0
 HYPERNYM_BOOST = 0.6
+SCORING_VERSION = "nb19.08-exact-wordnet-v1"
+
+
+def vector_cache_key(numberbatch_gz: Path, vocab: Iterable[str]) -> str:
+    """Identity for the fixed Numberbatch release and requested vocabulary."""
+    return hashlib.sha1(("\n".join(sorted(set(vocab))) + numberbatch_gz.name).encode()).hexdigest()[:16]
 
 
 class Vectors:
     """Normalised Numberbatch vectors restricted to a vocabulary."""
 
-    def __init__(self, words: list[str], matrix: np.ndarray):
+    def __init__(self, words: list[str], matrix: np.ndarray, cache_key: str | None = None):
         self.words = words
         self.matrix = matrix.astype(np.float32)
         self._index = {w: i for i, w in enumerate(words)}
+        self.cache_key = cache_key
 
     def __contains__(self, word: str) -> bool:
         return word in self._index
@@ -53,11 +61,11 @@ class Vectors:
     @classmethod
     def load(cls, numberbatch_gz: Path, vocab: Iterable[str], cache_dir: Path) -> "Vectors":
         vocab = set(vocab)
-        key = hashlib.sha1(("\n".join(sorted(vocab)) + numberbatch_gz.name).encode()).hexdigest()[:16]
+        key = vector_cache_key(numberbatch_gz, vocab)
         cache_dir.mkdir(parents=True, exist_ok=True)
         words_file, npy_file = cache_dir / f"{key}.words", cache_dir / f"{key}.npy"
         if words_file.exists() and npy_file.exists():
-            return cls(words_file.read_text().split("\n"), np.load(npy_file))
+            return cls(words_file.read_text().splitlines(), np.load(npy_file), key)
         words: list[str] = []
         rows: list[np.ndarray] = []
         with gzip.open(numberbatch_gz, "rt", encoding="utf-8") as f:
@@ -71,7 +79,7 @@ class Vectors:
         matrix = np.vstack(rows) if rows else np.zeros((0, 300), dtype=np.float32)
         words_file.write_text("\n".join(words))
         np.save(npy_file, matrix)
-        return cls(words, matrix)
+        return cls(words, matrix, key)
 
 
 # -- WordNet boosts -----------------------------------------------------------

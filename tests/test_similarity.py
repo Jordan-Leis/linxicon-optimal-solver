@@ -38,6 +38,20 @@ def test_vectors_cache_roundtrip(tiny_numberbatch, tmp_path):
     assert np.allclose(v2.matrix, v1.matrix)
 
 
+def test_empty_vectors_cache_roundtrip(tiny_numberbatch, tmp_path):
+    first = Vectors.load(tiny_numberbatch, {"missing"}, tmp_path / "cache")
+    second = Vectors.load(tiny_numberbatch, {"missing"}, tmp_path / "cache")
+    assert first.words == second.words == []
+    assert first.matrix.shape == second.matrix.shape
+
+
+def test_vector_cache_identity_is_shared_and_vocab_specific(tiny_numberbatch, tmp_path):
+    from linxicon_solver.similarity import vector_cache_key
+    v = Vectors.load(tiny_numberbatch, {"box", "chest"}, tmp_path / "cache")
+    assert v.cache_key == vector_cache_key(tiny_numberbatch, ["chest", "box"])
+    assert v.cache_key != vector_cache_key(tiny_numberbatch, ["box"])
+
+
 def test_cosines_to_all_returns_vector_aligned_with_words(tiny_numberbatch, tmp_path):
     v = Vectors.load(tiny_numberbatch, {"chest", "setting", "box"}, cache_dir=tmp_path / "c")
     sims = v.cosines_to_all("chest")

@@ -146,6 +146,8 @@ class Board:
 
     def simulate(self, chain: list[str]) -> SimResult:
         """Add words in order (stopping at a win or the board cap)."""
+        if self.is_won():
+            return SimResult(True, self.shortest_path(), 0, list(self.edges))
         added = 0
         for w in chain:
             if len(self.words) >= MAX_WORDS:

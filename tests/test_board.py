@@ -93,6 +93,13 @@ def test_simulate_reports_win_and_path():
     assert result.words_added == 1
 
 
+def test_simulate_does_not_add_words_after_initial_win():
+    board = Board(("tl", "br"), lambda a, b: 0.8)
+    result = board.simulate(["extra"])
+    assert result.won and result.words_added == 0
+    assert board.words == ["tl", "br"]
+
+
 def test_simulate_stops_at_max_words():
     board = Board(("tl", "br"), make_sim({}))
     result = board.simulate([f"w{i}" for i in range(MAX_WORDS)])
