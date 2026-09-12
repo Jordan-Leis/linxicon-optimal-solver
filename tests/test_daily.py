@@ -50,3 +50,30 @@ def test_fetch_failure(monkeypatch):
     monkeypatch.setattr(daily.requests, 'get', get)
     with pytest.raises(ValueError, match='fetch puzzle'):
         daily.fetch_game()
+
+
+def test_today_follows_homepage_play_form_after_soft_404(monkeypatch):
+    pages = {
+        'https://linxicon.com/game': '<h1>404 - Page not found</h1>',
+        'https://linxicon.com/': '<form action="/game/943"><button name="enterGame">Play</button></form>',
+        'https://linxicon.com/game/943?enterGame=': 'starters:$R[7]={id:943,tl:"apple",br:"banana",similarity:0.1,date:"2026-09-12"}',
+    }
+    visited = []
+    class Response:
+        def __init__(self, text): self.text = text
+        def raise_for_status(self): pass
+    def get(url, **kwargs):
+        visited.append(url)
+        return Response(pages[url])
+    monkeypatch.setattr(daily.requests, 'get', get)
+    assert daily.fetch_game().id == 943
+    assert visited == list(pages)
+
+
+def test_today_missing_play_form_is_clear(monkeypatch):
+    class Response:
+        text = '<h1>404 - Page not found</h1>'
+        def raise_for_status(self): pass
+    monkeypatch.setattr(daily.requests, 'get', lambda *a, **kw: Response())
+    with pytest.raises(ValueError, match="today's puzzle"):
+        daily.fetch_game()

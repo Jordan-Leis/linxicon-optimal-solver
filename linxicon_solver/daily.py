@@ -31,13 +31,28 @@ def parse_game_page(html: str) -> Game:
         raise ValueError("Invalid puzzle data in game page.") from exc
 
 
-def fetch_game(game_id: int | None = None) -> Game:
-    if game_id is not None and game_id <= 0:
-        raise ValueError("Game ID must be positive.")
-    url = BASE_URL + ("/game" if game_id is None else f"/game/{game_id}?enterGame=")
+def _fetch_page(path: str) -> str:
     try:
-        response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=30)
+        response = requests.get(BASE_URL + path, headers={"User-Agent": USER_AGENT}, timeout=30)
         response.raise_for_status()
     except requests.RequestException as exc:
         raise ValueError(f"Could not fetch puzzle: {exc}") from exc
-    return parse_game_page(response.text)
+    return response.text
+
+
+def fetch_game(game_id: int | None = None) -> Game:
+    if game_id is not None:
+        if game_id <= 0:
+            raise ValueError("Game ID must be positive.")
+        return parse_game_page(_fetch_page(f"/game/{game_id}?enterGame="))
+    page = _fetch_page('/game')
+    try:
+        return parse_game_page(page)
+    except ValueError:
+        # Some deployments serve a soft 404 at /game. Follow the homepage's
+        # daily Play form rather than guessing an ID from the local date.
+        home = _fetch_page('/')
+        play = re.search(r'<form\b[^>]*\baction="/game/(\d+)"[^>]*>.*?\bname="enterGame".*?</form>', home, re.S)
+        if not play:
+            raise ValueError("Could not locate today's puzzle in the homepage Play form.") from None
+        return fetch_game(int(play[1]))
