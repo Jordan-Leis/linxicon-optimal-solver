@@ -80,12 +80,19 @@ def _lemmas(synset) -> set[str]:
     return {l.name().lower() for l in synset.lemmas() if l.name().isalpha()}
 
 
-def wordnet_related(word: str) -> dict[str, float]:
-    """All words the server boosts relative to `word`, with the boost value."""
+def _synsets(word: str):
+    """Server behaviour: exact-form lemma lookup first; morphological fallback
+    (boxes -> box, jogged -> jog) only when the word is not itself a lemma."""
     from nltk.corpus import wordnet as wn
 
+    exact = [l.synset() for l in wn.lemmas(word)]
+    return exact or wn.synsets(word)
+
+
+def wordnet_related(word: str) -> dict[str, float]:
+    """All words the server boosts relative to `word`, with the boost value."""
     out: dict[str, float] = {}
-    for s in wn.synsets(word):
+    for s in _synsets(word):
         for w in _lemmas(s):
             out[w] = SYNONYM_BOOST
         related = s.hypernyms() + s.hyponyms() + s.instance_hypernyms() + s.instance_hyponyms() + s.similar_tos()
@@ -97,7 +104,7 @@ def wordnet_related(word: str) -> dict[str, float]:
 
 
 def wordnet_boost(a: str, b: str) -> float:
-    return wordnet_related(a).get(b, 0.0)
+    return max(wordnet_related(a).get(b, 0.0), wordnet_related(b).get(a, 0.0))
 
 
 class Similarity:

@@ -79,3 +79,14 @@ def test_calibration_against_live_server_values(tmp_path):
     assert sim.score("chest", "torso") == pytest.approx(0.6139977040459459, abs=1e-4)
     assert sim.score("box", "chest") == 0.6  # WordNet hyponym boost overrides cos 0.43
     assert sim.score("environment", "setting") == 0.6
+
+
+def test_wordnet_boost_uses_exact_form_before_morphology():
+    # "setting" is itself a noun lemma, so verb senses of "set" must NOT be used
+    assert wordnet_boost("setting", "table") == 0.0
+    assert wordnet_boost("setting", "make") == 0.0
+    # "jogged"/"boxes" are not lemmas, so the server falls back to jog/box
+    assert wordnet_boost("jogged", "run") == 0.6
+    assert wordnet_boost("boxes", "chest") == 0.6
+    # "jogging" is a noun lemma; its verb reading is not consulted
+    assert wordnet_boost("jogging", "run") == 0.0
