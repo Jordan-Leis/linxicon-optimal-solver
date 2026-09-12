@@ -1,4 +1,4 @@
-"""Word similarity as linxicon's server computes it.
+"""Local approximation of linxicon's server similarity.
 
 Reverse-engineered (2026-09-12) by comparing ~1,000 pair scores from the
 `update-semantics` server function against candidate models:
@@ -12,8 +12,9 @@ Reverse-engineered (2026-09-12) by comparing ~1,000 pair scores from the
   (verified 100% on ~75 pairs where cosine alone was below threshold)
 * the server occasionally returns other boosts (0.4 for some WordNet
   siblings, 0.3+0.4*cos for some others) that we cannot predict; they only
-  ever *raise* a score in the captured sample. This is an observation, not
-  a guarantee about all pairs or future server versions.
+  ever *raise* a score in the original captured sample. Later final-chain
+  verification found a counterexample: leaves/segment scores 0.6 locally
+  but about 0.054383 on the server. Always verify a chain before relying on it.
 """
 from __future__ import annotations
 
@@ -116,7 +117,7 @@ def wordnet_boost(a: str, b: str) -> float:
 
 
 class Similarity:
-    """score(a, b) as the server would report it (lower bound)."""
+    """Approximate server score(a, b); verification can reveal mismatches."""
 
     def __init__(self, vectors: Vectors, boosts: dict[frozenset, float] | None = None, use_wordnet: bool = True):
         self.vectors = vectors

@@ -1,5 +1,3 @@
-from types import SimpleNamespace
-
 import numpy as np
 import pytest
 
@@ -120,3 +118,18 @@ def test_setup_failure_is_actionable(monkeypatch, capsys):
     monkeypatch.setattr(cli, 'prepare', prepare)
     assert cli.main(['chest', 'setting']) == 1
     assert 'setup_data.py' in capsys.readouterr().err
+
+
+def test_live_counterexample_does_not_certify_a_local_win(prepared, monkeypatch, capsys):
+    class Client:
+        def verify(self, words):
+            # Game #943 exposed a local 0.6 boost whose server score was 0.054383.
+            pairs = {frozenset((words[0], words[-1])): .0279,
+                     frozenset((words[0], words[1])): .6,
+                     frozenset((words[1], words[-1])): .054383}
+            return Verification(words, [.6, .054383], pairs)
+    monkeypatch.setattr(cli, 'ServerClient', Client)
+    assert cli.main(['chest', 'setting', '--verify', '--alternates', '1']) == 1
+    output = capsys.readouterr().out
+    assert 'local board: WIN' in output
+    assert 'chain links: FAILED' in output and 'server board: FAILED' in output
