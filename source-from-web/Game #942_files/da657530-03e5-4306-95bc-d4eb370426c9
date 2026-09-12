@@ -1,0 +1,194 @@
+"use strict";(function(){try{var record=function(name,detail){aps.get(accountId).queue.push(new CustomEvent(name,{detail}))};const accountId="da657530-03e5-4306-95bc-d4eb370426c9";window._aps=window._aps||new Map;const aps=window._aps;aps.has(accountId)||aps.set(accountId,{queue:[],store:new Map}),record("_config/requestViewerCountry/define",{"code":"CA"});record("analytics/sampling/set",{"rates":{"error":0.001,"status":0.0001}});record("a3pes/video/activate",{"restrictions":{"block":{"accounts":["5220","e32f1423-28bc-43ed-8ab0-5ae6b4449cf8"]}}});record("a3pes/video/activate",{"bypassCountryCheck":true,"restrictions":{"allow":{"accountTypes":["ssw"]},"block":{"accounts":["e32f1423-28bc-43ed-8ab0-5ae6b4449cf8"]}}});record("a3pes/video/activate",{"bypassCountryCheck":true,"restrictions":{"allow":{"accountTypes":["mw"],"rate":0.5},"block":{"accounts":["5220"]}}});record("idVendors/enabled/set",{"bidParameterKeys":["liveintent","merkle","intimateMerger","pair","amx","33across","fTrack","captify","publink","anonymised","quantcast","idPlus","unifiedid","ddb_key_638","fabrick","uid","criteo","yahoo","liveRamp","id5","pubcommon","audigent","lightPublisherAudiences","lotame"]});record("idVendors/integration/execute",{"accountId":"da657530-03e5-4306-95bc-d4eb370426c9","sourceId":"600","countryCode":"CA","vendorId":"33across","allowedRegions":["JP","US","AU","CA"],"blockedRegions":undefined,"vendorLoadedSampleRate":5,"domainPrecedence":[],"defaultScript":function anonymous(
+) {
+["JP","US","AU","CA"]?["JP","US","AU","CA"].includes("CA")&&(function anonymous(
+) {
+var lexiconPropertyId = '0010b00002VqwyFAAR';
+if (lexiconPropertyId && lexiconPropertyId.charAt(0) !== '%') {
+  if (!window._33AcrossIdMappingsProvider) {
+    createlexiconScript(lexiconPropertyId);
+  }
+}
+
+function createlexiconScript(id) {
+  var lexiconScript = document.createElement('script');
+  lexiconScript.src = 'https://cdn-ima.33across.com/ima.js';
+  lexiconScript['onload'] = function (e) {
+    const my33AcrossIdProvider = new _33AcrossIdMappingsProvider({
+      pid: id,
+      refreshInSeconds: 60 * 60 * 8,
+      expires: 90,
+      src: 'aps'
+    });
+
+    my33AcrossIdProvider.fetch();
+  };
+  document.head.appendChild(lexiconScript);
+}
+})():(!undefined||undefined&&!undefined.includes("CA"))&&(function anonymous(
+) {
+var lexiconPropertyId = '0010b00002VqwyFAAR';
+if (lexiconPropertyId && lexiconPropertyId.charAt(0) !== '%') {
+  if (!window._33AcrossIdMappingsProvider) {
+    createlexiconScript(lexiconPropertyId);
+  }
+}
+
+function createlexiconScript(id) {
+  var lexiconScript = document.createElement('script');
+  lexiconScript.src = 'https://cdn-ima.33across.com/ima.js';
+  lexiconScript['onload'] = function (e) {
+    const my33AcrossIdProvider = new _33AcrossIdMappingsProvider({
+      pid: id,
+      refreshInSeconds: 60 * 60 * 8,
+      expires: 90,
+      src: 'aps'
+    });
+
+    my33AcrossIdProvider.fetch();
+  };
+  document.head.appendChild(lexiconScript);
+}
+})()
+},"defaultPropertyId":"0010b00002VqwyFAAR"});record("idVendors/integration/execute",{"accountId":"da657530-03e5-4306-95bc-d4eb370426c9","sourceId":"600","countryCode":"CA","vendorId":"audigent","allowedRegions":undefined,"blockedRegions":["BR"],"vendorLoadedSampleRate":5,"domainPrecedence":[],"defaultScript":function anonymous(
+) {
+undefined?undefined.includes("CA")&&(function anonymous(
+) {
+var audigentPropertyId = '720';
+if (audigentPropertyId && audigentPropertyId.charAt(0) !== '%') {
+  (function (H, A, D, R, O, N, i, d) {
+    H[N] = H[N] || function () { (H[N].q = H[N].q || []).push(arguments) };
+    i = A.createElement(D); A.async = true;
+    i.src = R + "?url=" + encodeURIComponent(H.location.href) + "&ref=" + encodeURIComponent(A.referrer) +
+      "&_it=amazon&partner_id=" + O; d = A.getElementsByTagName(D)[0]; d.parentNode.insertBefore(i, d);
+  })(window, document, 'script', 'https://cdn.hadronid.net/hadron.js', audigentPropertyId, 'ha');
+}
+})():(!["BR"]||["BR"]&&!["BR"].includes("CA"))&&(function anonymous(
+) {
+var audigentPropertyId = '720';
+if (audigentPropertyId && audigentPropertyId.charAt(0) !== '%') {
+  (function (H, A, D, R, O, N, i, d) {
+    H[N] = H[N] || function () { (H[N].q = H[N].q || []).push(arguments) };
+    i = A.createElement(D); A.async = true;
+    i.src = R + "?url=" + encodeURIComponent(H.location.href) + "&ref=" + encodeURIComponent(A.referrer) +
+      "&_it=amazon&partner_id=" + O; d = A.getElementsByTagName(D)[0]; d.parentNode.insertBefore(i, d);
+  })(window, document, 'script', 'https://cdn.hadronid.net/hadron.js', audigentPropertyId, 'ha');
+}
+})()
+},"defaultPropertyId":"720"});record("idVendors/integration/execute",{"accountId":"da657530-03e5-4306-95bc-d4eb370426c9","sourceId":"600","countryCode":"CA","vendorId":"id5","allowedRegions":undefined,"blockedRegions":["BR"],"vendorLoadedSampleRate":5,"domainPrecedence":[],"defaultScript":function anonymous(
+) {
+undefined?undefined.includes("CA")&&(function anonymous(
+) {
+var id5PropertyId = '1528';
+if (id5PropertyId && id5PropertyId.charAt(0) !== '%') {
+    var id5Script = document.createElement('script');
+    id5Script.src = '//cdn.id5-sync.com/api/1.0/id5-api.js';
+    id5Script['onload'] = function(e) { 
+        ID5.init({ partnerId: Number(id5PropertyId) , provider: 'aps' })
+    };
+    document.head.appendChild(id5Script);
+}
+})():(!["BR"]||["BR"]&&!["BR"].includes("CA"))&&(function anonymous(
+) {
+var id5PropertyId = '1528';
+if (id5PropertyId && id5PropertyId.charAt(0) !== '%') {
+    var id5Script = document.createElement('script');
+    id5Script.src = '//cdn.id5-sync.com/api/1.0/id5-api.js';
+    id5Script['onload'] = function(e) { 
+        ID5.init({ partnerId: Number(id5PropertyId) , provider: 'aps' })
+    };
+    document.head.appendChild(id5Script);
+}
+})()
+},"defaultPropertyId":"1528"});record("idVendors/integration/execute",{"accountId":"da657530-03e5-4306-95bc-d4eb370426c9","sourceId":"600","countryCode":"CA","vendorId":"liveRamp","allowedRegions":undefined,"blockedRegions":undefined,"vendorLoadedSampleRate":5,"domainPrecedence":[],"defaultScript":function anonymous(
+) {
+undefined?undefined.includes("CA")&&(function anonymous(
+) {
+(function(){if (window.apstag) {window.apstag.__liveRamp__ = false;}})();
+})():(!undefined||undefined&&!undefined.includes("CA"))&&(function anonymous(
+) {
+(function(){if (window.apstag) {window.apstag.__liveRamp__ = false;}})();
+})()
+},"defaultPropertyId":"14333"});record("idVendors/integration/execute",{"accountId":"da657530-03e5-4306-95bc-d4eb370426c9","sourceId":"600","countryCode":"CA","vendorId":"lotame","allowedRegions":undefined,"blockedRegions":["BR"],"vendorLoadedSampleRate":5,"domainPrecedence":[],"defaultScript":function anonymous(
+) {
+undefined?undefined.includes("CA")&&(function anonymous(
+) {
+if (!window['lotame_sync_16576']) {
+  var lotameClientId = '16576';
+
+  initLotame(lotameClientId);
+  createLotameScript(lotameClientId);
+
+  function initLotame(propertyId) {
+    var lotameConfig = {};
+    var namespace = window['lotame_sync_' + propertyId] = {};
+    namespace.config = lotameConfig;
+    namespace.data = {};
+    namespace.cmd = namespace.cmd || [];
+
+    namespace.cmd.push(function () {
+      namespace.sync();
+    });
+  };
+
+  function createLotameScript(propertyId) {
+    var lotameSyncUrl = "https://tags.crwdcntrl.net/lt/c/" + propertyId + "/sync.min.js";
+    var lotameScriptTag = document.createElement('script');
+    lotameScriptTag.src = lotameSyncUrl;
+    document.head.appendChild(lotameScriptTag);
+  };
+}
+})():(!["BR"]||["BR"]&&!["BR"].includes("CA"))&&(function anonymous(
+) {
+if (!window['lotame_sync_16576']) {
+  var lotameClientId = '16576';
+
+  initLotame(lotameClientId);
+  createLotameScript(lotameClientId);
+
+  function initLotame(propertyId) {
+    var lotameConfig = {};
+    var namespace = window['lotame_sync_' + propertyId] = {};
+    namespace.config = lotameConfig;
+    namespace.data = {};
+    namespace.cmd = namespace.cmd || [];
+
+    namespace.cmd.push(function () {
+      namespace.sync();
+    });
+  };
+
+  function createLotameScript(propertyId) {
+    var lotameSyncUrl = "https://tags.crwdcntrl.net/lt/c/" + propertyId + "/sync.min.js";
+    var lotameScriptTag = document.createElement('script');
+    lotameScriptTag.src = lotameSyncUrl;
+    document.head.appendChild(lotameScriptTag);
+  };
+}
+})()
+},"defaultPropertyId":undefined});record("idVendors/integration/execute",{"accountId":"da657530-03e5-4306-95bc-d4eb370426c9","sourceId":"600","countryCode":"CA","vendorId":"pubcommon","allowedRegions":undefined,"blockedRegions":["BR"],"vendorLoadedSampleRate":5,"domainPrecedence":[],"defaultScript":function anonymous(
+) {
+undefined?undefined.includes("CA")&&(function anonymous(
+) {
+if (!window.PublisherCommonId) {
+    var pubcommonScript = document.createElement('script');
+    pubcommonScript.src = '//secure.cdn.fastclick.net/js/pubcid/latest/pubcid.min.js';
+    document.head.appendChild(pubcommonScript);
+}
+})():(!["BR"]||["BR"]&&!["BR"].includes("CA"))&&(function anonymous(
+) {
+if (!window.PublisherCommonId) {
+    var pubcommonScript = document.createElement('script');
+    pubcommonScript.src = '//secure.cdn.fastclick.net/js/pubcid/latest/pubcid.min.js';
+    document.head.appendChild(pubcommonScript);
+}
+})()
+},"defaultPropertyId":undefined});record("idVendors/integration/execute",{"accountId":"da657530-03e5-4306-95bc-d4eb370426c9","sourceId":"600","countryCode":"CA","vendorId":"confiant","allowedRegions":undefined,"blockedRegions":undefined,"vendorLoadedSampleRate":5,"domainPrecedence":[{"hostnames":["curseforge.com","overwolf.com","statsroyale.com","outplayed.tv","wowace.com","mcpedl.com","bukkit.org","brawlstats.com"],"script":undefined,"propertyId":"QwN0KdjTe-a-6y-70Vps9qMqCzM"}],"defaultScript":function anonymous(
+) {
+undefined?undefined.includes("CA")&&(function anonymous(
+) {
+["window.creativeVendorLibraryLoaded = true;"]
+})():(!undefined||undefined&&!undefined.includes("CA"))&&(function anonymous(
+) {
+["window.creativeVendorLibraryLoaded = true;"]
+})()
+},"defaultPropertyId":"QwN0KdjTe-a-6y-70Vps9qMqCzM"});record("_config/config/didLoad",undefined)}catch(e){console.error(e)}})();

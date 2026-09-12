@@ -1,0 +1,1 @@
+aspan.parsedUA({"browser":"Chrome","os":"Windows","deviceType":"desktop"});

@@ -1,0 +1,209 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#F9F8F5"><link rel="canonical" href="https://linxicon.com"><meta name="description" content="Link 2 random words together by creating a chain of meaning!"><link rel="stylesheet" href="/styles.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&amp;family=McLaren&amp;display=swap" rel="stylesheet"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;icon_names=ac_unit,arrow_drop_down,arrow_drop_up,arrow_left,arrow_right,bolt,category,exercise,history,join,link,mode_heat,monitoring,open_in_new,person,refresh,settings,share,translate,weight&amp;display=block"><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"><link rel="manifest" href="/favicon/site.webmanifest" crossorigin="use-credentials"><meta property="og:title" content="Linxicon"><meta property="og:type" content="website"><meta property="og:url" content="https://linxicon.com"><meta property="og:image" content="https://linxicon.com/open-graph.png"><meta property="og:image:alt" content="Linxicon"><meta property="og:description" content="Link 2 random words together by creating a chain of meaning!"><meta property="og:site_name" content="Linxicon"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Linxicon"><meta name="twitter:description" content="Link 2 random words together by creating a chain of meaning!"><meta name="twitter:image" content="https://linxicon.com/open-graph.png"><meta name="twitter:image:alt" content="Linxicon"><meta name="twitter:creator" content="@theAbeTrain"><script>window.dataLayer = window.dataLayer || [];
+          window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+          window.__twlPrivacy = window.__twlPrivacy || {};
+
+          // NitroPay displays this choice in the banner's advanced settings.
+          window.nitroAdsCustomConsents = {
+            ga: {
+              name: "Google Analytics Consent",
+              description: "Consent for Analytics cookies and full measurement.",
+            },
+          };
+          window.__twlPrivacy.analyticsConsentGranted = false;
+
+          // Advanced Consent Mode loads Google only after these defaults are on
+          // the data layer. With analytics storage denied, Google can receive a
+          // limited cookieless page signal but must not create Analytics cookies.
+          window.gtag("consent", "default", {
+            analytics_storage: "denied",
+            ad_storage: "denied",
+            ad_user_data: "denied",
+            ad_personalization: "denied",
+          });
+
+          window.__twlPrivacy.denyGoogleAnalytics = function () {
+            window.__twlPrivacy.analyticsConsentGranted = false;
+            window.gtag("consent", "update", {
+              analytics_storage: "denied",
+              ad_storage: "denied",
+              ad_user_data: "denied",
+              ad_personalization: "denied",
+            });
+          };
+
+          // Download and configure this site's GA4 property at most once. This
+          // function deliberately does not grant storage: loading the tag and
+          // granting analytics are separate operations in Advanced Consent Mode.
+          window.__twlPrivacy.loadGoogleAnalytics = function () {
+            // Global Privacy Control is a browser-level request not to sell or
+            // share data. Treat it conservatively by keeping our own GA4
+            // property completely off, including cookieless pings.
+            if (navigator.globalPrivacyControl === true) {
+              window.__twlPrivacy.analyticsBlockedByGlobalPrivacyControl = true;
+              window.__twlPrivacy.denyGoogleAnalytics();
+              return;
+            }
+            if (window.__twlPrivacy.googleAnalyticsLoaded) return;
+            window.__twlPrivacy.googleAnalyticsLoaded = true;
+            var measurementId = "G-WV0C6S2G3J";
+            window.gtag("js", new Date());
+            window.gtag("config", measurementId);
+            var script = document.createElement("script");
+            script.async = true;
+            script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(measurementId);
+            document.head.appendChild(script);
+          };
+
+          // Full application analytics begins only after NitroPay confirms both
+          // device-storage permission and the site's custom Analytics choice.
+          window.__twlPrivacy.grantGoogleAnalytics = function () {
+            if (navigator.globalPrivacyControl === true) {
+              window.__twlPrivacy.analyticsBlockedByGlobalPrivacyControl = true;
+              window.__twlPrivacy.denyGoogleAnalytics();
+              return;
+            }
+            window.__twlPrivacy.loadGoogleAnalytics();
+            window.__twlPrivacy.analyticsConsentGranted = true;
+            window.gtag("consent", "update", {
+              analytics_storage: "granted",
+              ad_storage: "denied",
+              ad_user_data: "denied",
+              ad_personalization: "denied",
+            });
+          };
+
+          // NitroPay stores enabled custom-consent IDs in its ncmp-cc cookie.
+          window.__twlPrivacy.hasStoredGoogleAnalyticsConsent = function () {
+            return document.cookie.split("; ").some(function (cookie) {
+              if (!cookie.startsWith("ncmp-cc=")) return false;
+              return cookie.slice("ncmp-cc=".length).split(",").includes("ga");
+            });
+          };
+
+          // Handle both a saved choice on page load and a new choice made in the banner.
+          window.__twlPrivacy.handleGoogleAnalyticsConsent = function (tcData, success) {
+            if (!success) return;
+            var isStoredConsent = tcData.eventStatus === "tcloaded" && window.__twlPrivacy.hasStoredGoogleAnalyticsConsent();
+            var isCompletedChoice = tcData.eventStatus === "useractioncomplete";
+            if (!isStoredConsent && !isCompletedChoice) return;
+
+            // NitroPay currently leaves custom consents selected when "Reject all" is
+            // used. Requiring TCF purpose 1 keeps full Analytics storage off for
+            // that choice and grants it only when both permissions are approved.
+            var hasStorageConsent = tcData.purpose && tcData.purpose.consents && tcData.purpose.consents[1] === true;
+            if (!hasStorageConsent) {
+              window.__twlPrivacy.denyGoogleAnalytics();
+              return;
+            }
+
+            window.__tcfapi("hasCustomConsent", 2, function (hasConsent) {
+              if (hasConsent === true) {
+                window.__twlPrivacy.grantGoogleAnalytics();
+              } else {
+                window.__twlPrivacy.denyGoogleAnalytics();
+              }
+            }, "ga");
+          };
+
+          // The standalone CMP consumes queued TCF calls, but NitroPay's full ad
+          // script may leave that queue untouched. Register directly once either
+          // loader announces that its API is ready.
+          window.__twlPrivacy.registerGoogleAnalyticsConsentListener = function () {
+            if (window.__twlPrivacy.analyticsConsentListenerRegistered) return;
+            if (typeof window.__tcfapi !== "function") return;
+            window.__twlPrivacy.analyticsConsentListenerRegistered = true;
+            window.__tcfapi(
+              "addEventListener",
+              2,
+              window.__twlPrivacy.handleGoogleAnalyticsConsent
+            );
+          };
+
+          // NitroPay's ad bundle fires nitroAds.loaded just before it publishes
+          // __npcmp_gdpr. A one-time check at either event therefore misses the
+          // non-GDPR result and used to leave GA disabled for most visitors in
+          // the US, Canada, and Australia. Wait for the actual boolean result,
+          // but fail closed after five seconds if the CMP never provides one.
+          window.__twlPrivacy.resolveRegionalPrivacyState = function () {
+            if (window.__twlPrivacy.regionalStateResolved) return;
+            window.__twlPrivacy.registerGoogleAnalyticsConsentListener();
+            var forcedGdprDebug = new URLSearchParams(window.location.search).get("gdpr_debug") === "1";
+
+            // NitroPay can briefly expose its non-GDPR default before applying
+            // the documented gdpr_debug override. Never grant Analytics during
+            // that transition: the explicit QA mode must behave exactly like a
+            // GDPR region from the first instruction onward.
+            if (!forcedGdprDebug && window.__npcmp_gdpr === false) {
+              window.__twlPrivacy.regionalStateResolved = true;
+              window.__twlPrivacy.grantGoogleAnalytics();
+              return;
+            }
+
+            if (
+              window.__npcmp_gdpr === true &&
+              window.__twlPrivacy.analyticsConsentListenerRegistered
+            ) {
+              window.__twlPrivacy.regionalStateResolved = true;
+              return;
+            }
+
+            if (Date.now() >= window.__twlPrivacy.regionalStateDeadline) {
+              window.__twlPrivacy.regionalStateCheckTimedOut = true;
+              return;
+            }
+
+            window.__twlPrivacy.regionalStateCheckTimer = window.setTimeout(
+              window.__twlPrivacy.resolveRegionalPrivacyState,
+              50
+            );
+          };
+
+          window.__twlPrivacy.beginRegionalPrivacyCheck = function () {
+            if (
+              window.__twlPrivacy.regionalStateResolved ||
+              window.__twlPrivacy.regionalStateCheckTimer
+            ) return;
+            window.__twlPrivacy.regionalStateDeadline = Date.now() + 5000;
+            window.__twlPrivacy.resolveRegionalPrivacyState();
+          };
+
+          // Start Advanced Consent Mode immediately, before NitroPay resolves
+          // the region or presents a choice. The denied defaults above remain in
+          // force until the consent callbacks explicitly grant analytics.
+          window.__twlPrivacy.loadGoogleAnalytics();</script><script>(() => {
+          const onNitroPayReady = () => {
+            if (typeof window.__uspapi === "function") {
+              window.__uspapi("addLink", 1);
+            }
+            window.__twlPrivacy.beginRegionalPrivacyCheck();
+          };
+
+          document.addEventListener("DOMContentLoaded", onNitroPayReady, { once: true });
+          document.addEventListener("nitroAds.loaded", onNitroPayReady, { once: true });
+          const consentLoader = document.getElementById("nitropay-consent-loader");
+          if (window.__npcmp_init) {
+            onNitroPayReady();
+          } else {
+            consentLoader?.addEventListener("load", onNitroPayReady, { once: true });
+          }
+        })();</script><script data-cfasync="false">
+              window.nitroAds = window.nitroAds || {
+                createAd: function () {
+                  return new Promise((e) => {
+                    window.nitroAds.queue.push(["createAd", arguments, e]);
+                  });
+                },
+                addUserToken: function () {
+                  window.nitroAds.queue.push(["addUserToken", arguments]);
+                },
+                queue: [],
+              }</script><script data-cfasync="false" async src="https://s.nitropay.com/ads-1851.js"></script><script type="text/javascript">
+      window.nitroSponsor = window.nitroSponsor || {
+        init: function () {
+          window.nitroSponsor.queue.push(["init", arguments]);
+        },
+        status: "init",
+        queue: [],
+      };</script><script async src="https://s.nitropay.com/sponsor.js"></script><script>window._$HY||(e=>{let t=e=>e&&e.hasAttribute&&(e.hasAttribute("data-hk")?e:t(e.host&&e.host.nodeType?e.host:e.parentNode));["click", "input"].forEach((o=>document.addEventListener(o,(o=>{if(!e.events)return;let s=t(o.composedPath&&o.composedPath()[0]||o.target);s&&!e.completed.has(s)&&e.events.push([s,o])}))))})(_$HY={events:[],completed:new WeakSet,r:{},fe(){}});</script><script>self.$R=self.$R||[];_$HY.r["nitropay-sponsor[]"]=$R[0]=($R[1]=($R[2]=()=>{let e={p:0,s:0,f:0};return e.p=new Promise((r,t)=>{e.s=r,e.f=t}),e})()).p;_$HY.r["00000000010000"]=$R[3]=($R[4]=$R[2]()).p;($R[6]=(e,r)=>{e.s(r),e.p.s=1,e.p.v=r})($R[1],$R[5]={token:"",email:"",isClubMember:!1});$R[6]($R[4],$R[5]);</script><!--xs--><link href="/_build/assets/entry-client-DGhoizTc.css" rel="stylesheet" /><link href="/_build/assets/privacy-policy-UZywnWWt.css" rel="stylesheet" /><link href="/_build/assets/web-DVQ8fHPV.js" rel="modulepreload" /><link href="/_build/assets/preload-helper-BXl3LOEh.js" rel="modulepreload" /><link href="/_build/assets/index-DpCEC22b.js" rel="modulepreload" /><link href="/_build/assets/CustomLogo-DkgV0sl2.js" rel="modulepreload" /><link href="/_build/assets/datetime-feXHzB9K.js" rel="modulepreload" /><link href="/_build/assets/components-BuqzxqPV.js" rel="modulepreload" /><link href="/_build/assets/ua-parser-CdzcYDua.js" rel="modulepreload" /><link href="/_build/assets/server-runtime-DEGbw03I.js" rel="modulepreload" /><link href="/_build/assets/routing-B0DmWk9V.js" rel="modulepreload" /><link href="/_build/assets/action-EDmWrMTZ.js" rel="modulepreload" /><link href="/_build/assets/entry-client-1kgsEDDH.js" rel="modulepreload" /><title data-sm="000000000100010">Linxicon</title><link href="/_build/assets/_...404_-DRr4OZfx.js" rel="modulepreload" /></head><body><div id="app"><!--!$e000000--><div data-hk="00000000010002" class="" data-testid="layout"><div class="w-full bg-stone-50 dark:bg-stone-900 text-black dark:text-stone-50 pb-8 p-3"><div class="max-w-4xl w-full mx-auto md:px-1 sm:pb-8
+    relative top-0 bottom-0 left-0 right-0 min-h-screen 
+    flex flex-col justify-between"><!--!$e000000000100030--><header data-hk="0000000001000300" class="pt-3 h-13 sm:h-12 z-10 mb-2 w-full"><div class="h-full flex w-full justify-between items-end"><div class="flex w-20 items-end "><a data-hk="00000000010003010" aria-label="help" data-cy="home-link" href="/" class="h-7 active" link="true" ><img data-hk="00000000010003011" src="/icons/linxicon-black.svg" alt="Linxicon" width="24" class="block dark:invert"></a></div><a class="w-max " href="/"><h1 class="text-4xl w-min sm:w-max text-center font-header">Linxicon</h1></a><div class="space-x-1 flex w-20 justify-end items-end"><a data-hk="00000000010003020" aria-label="profile" href="/profile" class="flex h-6 items-end sm:w-20 justify-end inactive" link="true" ><span data-hk="00000000010003021" class="material-symbols-filled leading-none text-black dark:text-gray-200" style="font-size:24px">person</span></a></div></div><hr class="border-stone-700 dark:border-stone-100 block"></header><main data-hk="000000000100031" class="grow py-2 sm:py-3 lg:py-8"><main data-hk="000000000100032000000" class="text-center mx-auto text-gray-700 p-4"><div class="max-w-3xl mx-auto flex flex-col items-center justify-center"><img class="my-6" src="/logo.png" width="128" height="128" alt="the Fresh logo: a sliced lemon dripping with juice"><h1 class="text-4xl font-header">404 - Page not found</h1><p class="my-4">The page you were looking for doesn't exist.</p><!--$--><a data-hk="0000000001000320000010" href="/" class="underline active" link="true" >Go back home</a><!--/--></div></main></main><div data-hk="0000000001000330"></div><footer data-hk="0000000001000340" class="py-8 sm:pb-4 flex items-end justify-between w-full text-sm mb-4 max-w-5xl mx-auto"><div class="space-y-2"><p><a href="https://trainwrecklabs.com" target="_blank" class="flex space-x-2"><span data-t-key="footer.0">by Trainwreck Labs</span><img src="/icons/trainwreck.svg" alt="Trainwreck Labs" class="dark:invert" width="20"></a></p><p><a href="https://discord.gg/Xpyy8dCr9g" aria-label="Join our Discord server!" class="flex space-x-2" target="_blank"><span data-t-key="footer.1">Join our Discord server!</span><img src="/icons/discord-black.svg" alt="Discord" class="dark:invert" width="20"></a></p></div><div class="sm:space-y-3"><p><span class="hidden sm:inline" data-t-key="footer.2">Have a question?</span> <a href="/faq" class="underline" data-t-key="footer.3">Check out the FAQ</a></p><!--$--><span data-hk="00000000010003410" data-ccpa-link="1" class="underline"></span><div data-hk="00000000010003411" id="ncmp-consent-link"></div><!--/--></div></footer><!--!$/e000000000100030--></div></div></div><!--!$/e000000--></div><!--$--><script type="module" async src="/_build/assets/entry-client-1kgsEDDH.js"></script><!--/--></body></html>
