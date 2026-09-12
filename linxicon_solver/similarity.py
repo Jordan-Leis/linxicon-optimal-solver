@@ -116,3 +116,16 @@ class Similarity:
 
     def score(self, a: str, b: str) -> float:
         return max(0.0, self.vectors.cosine(a, b), self.boost(a, b))
+
+    def boost_pairs(self, words: Iterable[str]):
+        """Yield (a, b, boost) for every known boost among `words`."""
+        vocab = set(words)
+        for key, boost in self._boosts.items():
+            if len(key) == 2 and boost > 0 and key <= vocab:
+                a, b = sorted(key)
+                yield a, b, boost
+        if self.use_wordnet:
+            for w in vocab:
+                for other, boost in wordnet_related(w).items():
+                    if other in vocab:
+                        yield w, other, boost
