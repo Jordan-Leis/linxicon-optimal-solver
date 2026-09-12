@@ -13,7 +13,7 @@ import nltk
 import requests
 
 from linxicon_solver.cli import add_vocab_arguments, resolve_min_zipf
-from linxicon_solver.data import DATA_DIR, NUMBERBATCH_NAME, prepare
+from linxicon_solver.data import DATA_DIR, NUMBERBATCH_NAME, ensure_wordnet, prepare
 from linxicon_solver.similarity import NUMBERBATCH_URL
 from linxicon_solver.vocab import ENABLE_URL
 
@@ -47,8 +47,11 @@ def main(argv=None) -> int:
         download(ENABLE_URL, DATA_DIR/'enable1.txt')
         download(NUMBERBATCH_URL, DATA_DIR/NUMBERBATCH_NAME)
         if not args.no_wordnet:
-            if not nltk.download('wordnet', quiet=True, raise_on_error=True):
-                raise ValueError('WordNet download failed; check connectivity and NLTK_DATA permissions.')
+            try:
+                ensure_wordnet()
+            except ValueError:
+                if not nltk.download('wordnet', quiet=True, raise_on_error=True):
+                    raise ValueError('WordNet download failed; check connectivity and NLTK_DATA permissions.')
         prepare(data_dir=DATA_DIR, min_zipf=min_zipf, use_wordnet=not args.no_wordnet,
                 progress=lambda message: print(message, file=sys.stderr))
     except (OSError, ValueError, LookupError, requests.RequestException) as exc:

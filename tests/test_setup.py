@@ -42,6 +42,9 @@ def test_interrupted_download_does_not_publish_file(tmp_path, monkeypatch):
 def test_setup_downloads_data_wordnet_and_builds_with_shared_defaults(tmp_path, monkeypatch):
     downloads, prepared, corpora = [], [], []
     monkeypatch.setattr(setup_data, 'DATA_DIR', tmp_path)
+    def missing():
+        raise ValueError('missing WordNet')
+    monkeypatch.setattr(setup_data, 'ensure_wordnet', missing)
     monkeypatch.setattr(setup_data, 'download', lambda url, path: downloads.append(path.name))
     monkeypatch.setattr(setup_data.nltk, 'download', lambda name, **kw: corpora.append(name) or True)
     monkeypatch.setattr(setup_data, 'prepare', lambda **kw: prepared.append(kw))
@@ -61,8 +64,19 @@ def test_setup_full_and_no_wordnet(tmp_path, monkeypatch):
 
 
 def test_corpus_failure_does_not_build(monkeypatch, capsys):
+    def missing():
+        raise ValueError('missing WordNet')
+    monkeypatch.setattr(setup_data, 'ensure_wordnet', missing)
     monkeypatch.setattr(setup_data, 'download', lambda *a: None)
     monkeypatch.setattr(setup_data.nltk, 'download', lambda *a, **kw: False)
     monkeypatch.setattr(setup_data, 'prepare', lambda **kw: pytest.fail('missing WordNet'))
     assert setup_data.main([]) == 1
     assert 'WordNet' in capsys.readouterr().err
+
+
+def test_setup_reuses_installed_wordnet_without_network(monkeypatch):
+    monkeypatch.setattr(setup_data, 'download', lambda *a: None)
+    monkeypatch.setattr(setup_data, 'ensure_wordnet', lambda: None, raising=False)
+    monkeypatch.setattr(setup_data.nltk, 'download', lambda *a, **kw: pytest.fail('installed WordNet must be reused'))
+    monkeypatch.setattr(setup_data, 'prepare', lambda **kw: None)
+    assert setup_data.main([]) == 0
