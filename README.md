@@ -1,125 +1,37 @@
 # Linxicon Optimal Solver
 
-Find chains connecting two Linxicon starter words, ranked by the fewest added words and then the highest total link score. Search runs locally using ConceptNet Numberbatch 19.08 and WordNet. Optional server verification checks dictionary acceptance, retrieves actual scores, and replays the board.
+Solves the daily [Linxicon](https://linxicon.com/) word-chain puzzle: the shortest chain of words from one starter to the other, using the game's own scoring (ConceptNet Numberbatch vectors plus WordNet boosts), checked against the game's server before it is shown.
 
-## Setup
+## See today's solve
 
-Python 3.12 is the tested version. From this checkout:
+**[jordanleis.com/linxicon-solver](https://jordanleis.com/linxicon-solver/)** shows today's puzzle as a route. Reveal the chain, watch the search spread across a map of 500 words, or inspect why any two words connect. It updates itself every hour from this repository.
+
+[![Today's Linxicon solved: bridge, track, running, above a map of the search](docs/images/atlas-desktop.png)](https://jordanleis.com/linxicon-solver/)
+
+<img src="docs/images/atlas-phone.png" alt="The same page on a phone: the chain drawn as a vertical route line" width="300">
+
+## Run it yourself
+
+Python 3.12. Setup downloads the ENABLE dictionary, the 325 MB Numberbatch archive and the WordNet corpus, then builds the vector and graph caches (about 30 seconds, no GPU).
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 python -m pip install -r requirements.txt
 python scripts/setup_data.py
+
+python -m linxicon_solver --today --verify   # today's puzzle, checked against the game
+python -m linxicon_solver chest setting      # any pair of words, fully offline
 ```
 
-Setup downloads the ENABLE dictionary if absent, the approximately 325 MB Numberbatch archive, and the NLTK `wordnet` corpus. It then builds vector and graph caches. A GPU is unnecessary. Existing downloads, installed WordNet, and matching caches are reused; interrupted downloads are not published as complete files. After setup, explicit-word solves need no internet connection.
+The output lists each chain with its link scores; enter only the words between the two starters, in order. All options are in [docs/cli.md](docs/cli.md).
 
-If your Python installation lacks `ensurepip`, install your distribution's Python venv support or provision a venv with pip separately. Set `NLTK_DATA` to a writable corpus directory if the default location is unsuitable.
+## How it works
 
-## Usage
+Each word is a Numberbatch vector; a link's score is `max(0, cosine)`, raised to 1.0 for words sharing a WordNet synset and 0.6 for direct hypernym/hyponym pairs, matching the game's measured behaviour. Links at or above 0.3995 form a graph of about 51,000 words; breadth-first search finds every shortest chain and ranks equal-length chains by total score. With `--verify`, each candidate's words are validated on the server and the board is replayed with the server's own pair scores under the game's top-five link rule. Details and known limits are in [docs/scoring.md](docs/scoring.md).
 
-```bash
-python -m linxicon_solver chest setting
-python -m linxicon_solver --today
-python -m linxicon_solver --game 942
-python -m linxicon_solver --today --verify --alternates 1
-python -m linxicon_solver chest setting --vocab full
-python -m linxicon_solver chest setting --min-zipf 3.0
-python -m linxicon_solver chest setting --no-wordnet --no-simulate
-```
+## More
 
-| Option | Behavior |
-| --- | --- |
-| Two positional words | Solve a supplied pair; normalize uppercase input. |
-| `--today` / `--game ID` | Fetch today's or a numbered puzzle; cannot be combined with positional words. Today falls back to the homepage Play form when `/game` serves no puzzle. |
-| `--alternates N` | Print up to **N total candidates**, default 5, all at the shortest local length. |
-| `--vocab common` | Default: ENABLE words with English Zipf frequency at least **2.0**. |
-| `--vocab full` | Include all valid ENABLE words without a frequency floor. |
-| `--min-zipf FLOAT` | Override the common vocabulary floor; cannot be combined with `--vocab full`. |
-| `--no-wordnet` | Use Numberbatch cosine alone. |
-| `--verify` | Validate all words in every displayed candidate and compare local/server scores. |
-| `--no-simulate` | Skip local and server board replay; verification still checks words and link scores. |
-
-Setup accepts the same `--vocab`, `--min-zipf`, and `--no-wordnet` options. Use matching options to prebuild a particular graph.
-
-Output includes the chain, individual link scores, added-word count, total, average, weakest link, and simulation outcome. Both starters are already on the board; enter only the intermediate words, in the printed order. A direct starter link requires zero additions.
-
-`--verify` preserves local ranking, marks rejected candidates, and reports the board path found using the complete server pair-score table. Extra server links can produce a shorter board path than the candidate. Validation results are reused across alternates within the command. Requests are spaced at least 0.5 seconds apart; the server is never queried during search. Start with `--alternates 1` to minimize requests.
-
-Exit status is 0 when at least one candidate succeeds, 1 for unavailable data, no solution, or verification failure, and 2 for invalid arguments. With simulation disabled, success means a candidate exists (or its words and links pass verification); it does not certify a board win.
-
-## Scoring and limits
-
-Reverse-engineering captured on September 12, 2026 found that the site's FAQ description of MiniLM did not match measured scores. The implemented model uses:
-
-- `max(0, cosine)` of normalized ConceptNet Numberbatch 19.08 English vectors.
-- A **1.0** boost for shared WordNet synsets.
-- A **0.6** boost for direct hypernym/hyponym or adjective `similar_to` relationships.
-- Exact-form WordNet lemma lookup first, falling back to morphological lookup only when the input is not itself a lemma. Boost lookup is symmetric.
-
-The strongest applicable score wins. The original captured research found exact base-score agreement on about 96% of pairs and additional server boosts that only increased scores in that sample. **Later live verification disproved a universal lower-bound claim:** `leaves → segment` scored 0.6 locally but approximately 0.054383 on the server. The precise cause of this WordNet boost discrepancy remains unresolved. Use `--verify` before relying on a chain. Local float32 computation also introduces small rounding differences near the 0.3995 threshold.
-
-Board simulation uses the captured client rules: a **0.3995** link threshold, a **50-word** cap including starters, and top-five pruning where an edge survives if it is in either endpoint's five strongest links. Among shortest paths, the game prefers the highest total score. Total and average ranking agree when path lengths are equal.
-
-“Optimal” means optimal within the selected vocabulary and local model. The site's extra boosts and broader dictionary may allow shorter chains. The local dictionary is a candidate filter, not a complete mirror of the server's dictionary: profanity and other rejected words may occur. Inflections remain eligible. Some locally available vectors are absent on the server. Use verification and alternates to detect these mismatches; the solver does not automatically search longer paths after rejecting the displayed candidates.
-
-Missing starter vectors, missing pair scores, HTTP errors, and unrecognized server formats fail explicitly. Server function identifiers are captured in `linxicon_solver/server.py`; a site deployment may require updating them and their response fixtures.
-
-## Data and caches
-
-Data lives under the checkout's `data/`, regardless of the invocation directory. ENABLE is committed; Numberbatch, the venv, and generated caches are gitignored. Saved game pages in `source-from-web/` remain reference material.
-
-Vector caches are keyed by the requested vocabulary and the fixed Numberbatch release filename. Graph names also include threshold, WordNet setting, and scoring implementation version. Starters are added before vector loading, so starters outside the selected vocabulary create a different cache. Clear `data/cache/` to force a rebuild, including if replacing vector contents under the same filename. Full-vocabulary builds require more time and memory than the default.
-
-## Validation
-
-```bash
-python -m pytest tests/ -q
-```
-
-Tests use tiny vector fixtures and mocked HTTP calls. WordNet tests require the installed corpus; the calibration test uses captured server values and is skipped if Numberbatch is absent. The test suite does not call the game server.
-
-### Results recorded September 12, 2026
-
-- **79 tests passed**. Repeating setup successfully reused the installed corpus and existing caches without network access. Installed dependencies passed `pip check`.
-- A default graph contains **51,029 words and 1,679,661 edges**; a fresh build took **27.3 seconds** using two OpenBLAS threads.
-- Cached `chest → setting` solving returned five locally winning chains with three added words. One result was `chest → bureau → office → place → setting`, with scores 1.0, 1.0, 1.0, 0.6.
-- An isolated warm run took approximately **10.0 seconds**: vocabulary/corpus preparation 3.0 s, vector loading 0.1 s, graph loading 2.0 s, search 2.8 s, and simulation 2.1 s. **The under-five-second target is not met.** A full subprocess measured 12.5 s while tests ran concurrently. These timings used `OPENBLAS_NUM_THREADS=2`; performance depends on the machine and vocabulary.
-- `python -m linxicon_solver --today --verify` fetched **game #943**, dated **2026-09-12**, with starters **sick → segment**. All three available shortest local candidates were checked. The first (`sick → pass → leaves → segment`) failed on the server, despite a local win.
-- The highest-ranked successful candidate was **sick → green → leafs → segment**. All four words passed validation; server link scores were **0.600000, 0.478765, 0.600000**. The complete server-score board replay reported **WIN after two additions**. A third candidate through `greenest → leafs` also passed verification.
-- **Manual browser confirmation: pending.** On [game #943](https://linxicon.com/game/943?enterGame=), add **green**, then **leafs** (exact spelling). Server-score replay alone is not recorded as confirmation of the game's win screen.
-
-## Semantic Atlas export
-
-The static atlas at `https://jordanleis.com/linxicon-solver/` replays real daily
-search and verification events. Generate a standalone bundle with:
-
-```bash
-OPENBLAS_NUM_THREADS=2 python -m linxicon_solver.export_daily --output /tmp/atlas-data
-```
-
-`latest.json` points to a SHA-256 checked, content-hashed daily file. Schema 1
-contains puzzle metadata, solver revision, configuration, timings, up to 500
-projected words, cosine neighbors, local scoring evidence, sampled discovery
-events with exact aggregate counts, candidates, and local/server board frames.
-Missing server values are null. Coordinates use sign-normalized PCA; sampling
-and ties are deterministic. Playback speed is independent of recorded timing.
-Derived Numberbatch data is CC BY-SA 4.0; publication must include the Numberbatch
-attribution and WordNet license notices bundled with the website.
-
-The website's scheduled publishing workflow calls:
-
-```bash
-python -m linxicon_solver.publish_daily --output SITE/linxicon-solver/data \
-  --previous-url https://jordanleis.com/linxicon-solver/data/ \
-  --status /tmp/atlas-status.json
-```
-
-This checks the current puzzle before preparing large datasets, reuses an
-unchanged complete result, and retries temporary verification failures up to
-three times per puzzle and exporter revision. `--force` explicitly requests a
-refresh. A generation failure preserves the last complete bundle; it is never
-relabelled with a newer puzzle date. The website pins a reviewed solver commit.
-Graph search and `Board.simulate()` also accept optional observer callbacks;
-normal CLI return values remain unchanged.
+- [docs/cli.md](docs/cli.md): every option, exit codes and verification behaviour
+- [docs/scoring.md](docs/scoring.md): scoring model, limits, caches and recorded results
+- [docs/atlas-export.md](docs/atlas-export.md): the daily export that feeds the website
+- `python -m pytest tests/ -q` runs the suite without touching the game server
