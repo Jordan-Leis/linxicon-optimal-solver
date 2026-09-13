@@ -33,5 +33,5 @@ Each word is a Numberbatch vector; a link's score is `max(0, cosine)`, raised to
 
 - [docs/cli.md](docs/cli.md): every option, exit codes and verification behaviour
 - [docs/scoring.md](docs/scoring.md): scoring model, limits, caches and recorded results
-- [docs/atlas-export.md](docs/atlas-export.md): the daily export that feeds the website
+- [docs/atlas-export.md](docs/atlas-export.md): the daily export and the graph bundle that feed the website
 - `python -m pytest tests/ -q` runs the suite without touching the game server
