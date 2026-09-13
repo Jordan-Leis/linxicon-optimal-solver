@@ -89,3 +89,37 @@ Tests use tiny vector fixtures and mocked HTTP calls. WordNet tests require the 
 - `python -m linxicon_solver --today --verify` fetched **game #943**, dated **2026-09-12**, with starters **sick → segment**. All three available shortest local candidates were checked. The first (`sick → pass → leaves → segment`) failed on the server, despite a local win.
 - The highest-ranked successful candidate was **sick → green → leafs → segment**. All four words passed validation; server link scores were **0.600000, 0.478765, 0.600000**. The complete server-score board replay reported **WIN after two additions**. A third candidate through `greenest → leafs` also passed verification.
 - **Manual browser confirmation: pending.** On [game #943](https://linxicon.com/game/943?enterGame=), add **green**, then **leafs** (exact spelling). Server-score replay alone is not recorded as confirmation of the game's win screen.
+
+## Semantic Atlas export
+
+The static atlas at `https://jordanleis.com/linxicon-solver/` replays real daily
+search and verification events. Generate a standalone bundle with:
+
+```bash
+OPENBLAS_NUM_THREADS=2 python -m linxicon_solver.export_daily --output /tmp/atlas-data
+```
+
+`latest.json` points to a SHA-256 checked, content-hashed daily file. Schema 1
+contains puzzle metadata, solver revision, configuration, timings, up to 500
+projected words, cosine neighbors, local scoring evidence, sampled discovery
+events with exact aggregate counts, candidates, and local/server board frames.
+Missing server values are null. Coordinates use sign-normalized PCA; sampling
+and ties are deterministic. Playback speed is independent of recorded timing.
+Derived Numberbatch data is CC BY-SA 4.0; publication must include the Numberbatch
+attribution and WordNet license notices bundled with the website.
+
+The website's scheduled publishing workflow calls:
+
+```bash
+python -m linxicon_solver.publish_daily --output SITE/linxicon-solver/data \
+  --previous-url https://jordanleis.com/linxicon-solver/data/ \
+  --status /tmp/atlas-status.json
+```
+
+This checks the current puzzle before preparing large datasets, reuses an
+unchanged complete result, and retries temporary verification failures up to
+three times per puzzle and exporter revision. `--force` explicitly requests a
+refresh. A generation failure preserves the last complete bundle; it is never
+relabelled with a newer puzzle date. The website pins a reviewed solver commit.
+Graph search and `Board.simulate()` also accept optional observer callbacks;
+normal CLI return values remain unchanged.
