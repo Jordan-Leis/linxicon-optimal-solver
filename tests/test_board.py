@@ -112,3 +112,14 @@ def test_duplicate_word_rejected():
     board.add_word("x")
     with pytest.raises(ValueError):
         board.add_word("x")
+
+
+def test_board_observer_captures_initial_and_added_frames():
+    sim = make_sim({frozenset(('tl', 'a')): .6, frozenset(('a', 'br')): .7})
+    events = []
+    result = Board(('tl', 'br'), sim).simulate(['a'], observer=events.append)
+    assert result.won
+    assert [e['words'] for e in events] == [['tl', 'br'], ['tl', 'br', 'a']]
+    assert events[0]['added'] is None and events[1]['added'] == 'a'
+    assert events[1]['path'] == result.path
+    assert len(events[1]['edges']) == 2

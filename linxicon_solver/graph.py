@@ -92,7 +92,7 @@ class Graph:
                 edges[key] = boost
         return cls(list(v.words), edges)
 
-    def shortest_chains(self, src: str, dst: str, k: int = 5) -> list[Chain]:
+    def shortest_chains(self, src: str, dst: str, k: int = 5, observer=None) -> list[Chain]:
         """k best chains among those with the fewest words (ties by total score)."""
         if src not in self._index or dst not in self._index:
             return []
@@ -103,16 +103,25 @@ class Graph:
         dist = {s: 0}
         order = [s]
         q = deque([s])
+        examined = 0
+        if observer:
+            observer(dict(type='discover', word=src, parent=None, depth=0, visited=1, frontier=1, examined=0))
         while q:
             u = q.popleft()
             if u == t:
                 break
-            for vtx in self.adj[u]:
+            for vtx in sorted(self.adj[u], key=lambda i: self.words[i]):
+                examined += 1
                 if vtx not in dist:
                     dist[vtx] = dist[u] + 1
                     order.append(vtx)
                     q.append(vtx)
+                    if observer:
+                        observer(dict(type='discover', word=self.words[vtx], parent=self.words[u],
+                                      depth=dist[vtx], visited=len(dist), frontier=len(q), examined=examined))
         if t not in dist:
+            if observer:
+                observer(dict(type='complete', visited=len(dist), frontier=len(q), examined=examined, candidates=[]))
             return []
         # k-best DP over the layered DAG (only edges that advance one layer)
         best: dict[int, list[tuple[float, list[int]]]] = {s: [(0.0, [s])]}
@@ -123,10 +132,13 @@ class Graph:
             for p, w in self.adj[u].items():
                 if dist.get(p) == dist[u] - 1 and p in best:
                     cands.extend((score + w, path + [u]) for score, path in best[p])
-            cands.sort(key=lambda x: -x[0])
+            cands.sort(key=lambda x: (-x[0], tuple(self.words[i] for i in x[1])))
             best[u] = cands[:k]
         chains = []
         for _, path in best.get(t, []):
             scores = [self.adj[path[i]][path[i + 1]] for i in range(len(path) - 1)]
             chains.append(Chain([self.words[i] for i in path], scores))
+        if observer:
+            observer(dict(type='complete', visited=len(dist), frontier=len(q), examined=examined,
+                          candidates=[c.words for c in chains]))
         return chains

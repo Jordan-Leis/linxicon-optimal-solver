@@ -65,3 +65,24 @@ def test_graph_save_and_load_roundtrip(tmp_path):
     assert g2.words == g.words
     assert g2.weight("tl", "b") == pytest.approx(0.9)
     assert [c.words for c in g2.shortest_chains("tl", "br", k=2)] == [c.words for c in g.shortest_chains("tl", "br", k=2)]
+
+
+def test_search_trace_records_real_discovery_and_preserves_results():
+    graph = toy()
+    events = []
+    chains = graph.shortest_chains('tl', 'br', observer=events.append)
+    assert [c.words for c in chains] == [c.words for c in graph.shortest_chains('tl', 'br')]
+    discoveries = [e for e in events if e['type'] == 'discover']
+    assert discoveries[0]['word'] == 'tl' and discoveries[0]['depth'] == 0
+    assert len({e['word'] for e in discoveries}) == len(discoveries)
+    assert next(e for e in discoveries if e['word'] == 'br')['depth'] == 2
+    assert events[-1]['type'] == 'complete'
+    assert events[-1]['visited'] == len(discoveries)
+    assert events[-1]['candidates'][0] == ['tl', 'b', 'br']
+
+
+def test_equal_scores_have_stable_word_order():
+    first = Graph(['start', 'end', 'zulu', 'alpha'], {(0, 2): .6, (2, 1): .6, (0, 3): .6, (3, 1): .6})
+    second = Graph(first.words, {(0, 3): .6, (3, 1): .6, (0, 2): .6, (2, 1): .6})
+    assert [c.words for c in first.shortest_chains('start', 'end')] == [c.words for c in second.shortest_chains('start', 'end')]
+    assert first.shortest_chains('start', 'end')[0].words == ['start', 'alpha', 'end']

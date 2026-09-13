@@ -144,8 +144,16 @@ class Board:
                 best, best_score = p, s
         return best
 
-    def simulate(self, chain: list[str]) -> SimResult:
+    def simulate(self, chain: list[str], observer=None) -> SimResult:
         """Add words in order (stopping at a win or the board cap)."""
+        def record(added):
+            if observer:
+                kept = {e.id for e in self.edges}
+                serialize = lambda e: dict(a=e.a, b=e.b, score=e.score)
+                observer(dict(words=list(self.words), added=added, path=self.shortest_path(),
+                              edges=[serialize(e) for e in self.edges],
+                              pruned=[serialize(e) for e in self._candidates if e.id not in kept]))
+        record(None)
         if self.is_won():
             return SimResult(True, self.shortest_path(), 0, list(self.edges))
         added = 0
@@ -153,6 +161,7 @@ class Board:
             if len(self.words) >= MAX_WORDS:
                 break
             self.add_word(w)
+            record(w)
             added += 1
             if self.is_won():
                 break
