@@ -1,0 +1,7 @@
+# Words the game's dictionary has rejected, one per line. The solver never
+# proposes these; the daily publisher learns more and merges them into the
+# website's rejected.json. Seen via `--verify` or the daily verification.
+bahai
+connexion
+fete
+fetes

@@ -86,3 +86,11 @@ def test_equal_scores_have_stable_word_order():
     second = Graph(first.words, {(0, 3): .6, (3, 1): .6, (0, 2): .6, (2, 1): .6})
     assert [c.words for c in first.shortest_chains('start', 'end')] == [c.words for c in second.shortest_chains('start', 'end')]
     assert first.shortest_chains('start', 'end')[0].words == ['start', 'alpha', 'end']
+
+
+def test_blocked_words_are_never_part_of_a_chain():
+    g = toy()
+    chains = g.shortest_chains("tl", "br", k=5, blocked={"b"})
+    assert [c.words for c in chains] == [["tl", "a", "br"]]
+    # Blocking every bridge forces the longer chain; blocking a starter is ignored.
+    assert [c.words for c in g.shortest_chains("tl", "br", k=5, blocked={"a", "b", "tl"})] == [["tl", "c", "d", "br"]]

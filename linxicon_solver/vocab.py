@@ -33,6 +33,18 @@ def load_enable(path: Path) -> list[str]:
     return path.read_text().split()
 
 
+def load_rejected(path: Path) -> set[str]:
+    """Words the game's dictionary has rejected: one per line, `#` comments allowed."""
+    if not path.exists():
+        return set()
+    words = set()
+    for line in path.read_text().splitlines():
+        word = line.split('#', 1)[0].strip().lower()
+        if word:
+            words.add(word)
+    return words
+
+
 def build_vocab(enable_path: Path, min_zipf: float = DEFAULT_MIN_ZIPF) -> list[str]:
     from wordfreq import zipf_frequency
 

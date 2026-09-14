@@ -94,3 +94,20 @@ def test_schema_rejects_nonfinite_or_wrong_references(model):
     result = export.build_daily(*model, Client(), revision='test')
     result['nodes'][0]['x'] = float('nan')
     with pytest.raises(ValueError): export.validate_bundle(result)
+
+
+def test_rejected_words_are_read_from_candidate_errors():
+    bundle = {'candidates': [
+        {'status': 'rejected', 'error': 'fete: "fete" not found in dictionary.'},
+        {'status': 'rejected', 'error': 'fetes: "fetes" not found in dictionary.'},
+        {'status': 'rejected', 'error': 'damn: "damn" is not allowed.'},
+        {'status': 'rejected', 'error': 'Server scores do not connect the starters.'},
+        {'status': 'rejected', 'error': 'bahai: no vector on the server'},
+        {'status': 'verified', 'error': None}]}
+    assert export.rejected_words(bundle) == {'fete', 'fetes', 'damn'}
+
+
+def test_build_daily_avoids_blocked_words(model):
+    game, sim, graph = model
+    result = export.build_daily(game, sim, graph, Client(), revision='test', blocked={'bridge'})
+    assert all('bridge' not in c['words'] for c in result['candidates'])

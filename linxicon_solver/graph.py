@@ -92,11 +92,16 @@ class Graph:
                 edges[key] = boost
         return cls(list(v.words), edges)
 
-    def shortest_chains(self, src: str, dst: str, k: int = 5, observer=None) -> list[Chain]:
-        """k best chains among those with the fewest words (ties by total score)."""
+    def shortest_chains(self, src: str, dst: str, k: int = 5, observer=None, blocked=frozenset()) -> list[Chain]:
+        """k best chains among those with the fewest words (ties by total score).
+
+        `blocked` words (for example ones the game's dictionary rejected) are never
+        entered; the starters themselves are exempt.
+        """
         if src not in self._index or dst not in self._index:
             return []
         s, t = self._index[src], self._index[dst]
+        skip = {self._index[w] for w in blocked if w in self._index} - {s, t}
         if s == t:
             return [Chain([src], [])]
         # BFS layering from src
@@ -112,7 +117,7 @@ class Graph:
                 break
             for vtx in sorted(self.adj[u], key=lambda i: self.words[i]):
                 examined += 1
-                if vtx not in dist:
+                if vtx not in dist and vtx not in skip:
                     dist[vtx] = dist[u] + 1
                     order.append(vtx)
                     q.append(vtx)

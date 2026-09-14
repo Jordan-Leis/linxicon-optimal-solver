@@ -11,8 +11,36 @@ import time
 import requests
 
 from .daily import fetch_game
-from .export_daily import SCHEMA_VERSION, build_daily, load_bundle, revision, write_bundle
+from .data import DATA_DIR
+from .export_daily import SCHEMA_VERSION, build_daily, load_bundle, rejected_words, revision, write_bundle
 from .server import ServerClient
+from .vocab import load_rejected
+
+REJECTED_SCHEMA=1
+
+
+def load_rejected_list(output):
+    """The website's accumulated list of words the game rejected (empty if absent or invalid)."""
+    path=Path(output)/'rejected.json'
+    try:
+        data=json.loads(path.read_text())
+        if data.get('schema_version')!=REJECTED_SCHEMA:
+            return set()
+        return {w for w in data.get('words',[]) if isinstance(w,str) and w.isalpha() and w.islower()}
+    except (OSError,ValueError):
+        return set()
+
+
+def update_rejected(output,*,seed,learned):
+    """Merge the seed list, the previously published list and today's rejections; returns the union."""
+    output=Path(output)
+    words=load_rejected_list(output)|set(seed)|set(learned)
+    data=dict(schema_version=REJECTED_SCHEMA,words=sorted(words))
+    output.mkdir(parents=True,exist_ok=True)
+    temporary=output/'rejected.tmp'
+    temporary.write_text(json.dumps(data,indent=2)+'\n')
+    temporary.replace(output/'rejected.json')
+    return words
 
 
 def update(output, game, solver_revision, generate, *, force=False):
@@ -61,20 +89,31 @@ def restore_published(base_url, output):
             output.mkdir(parents=True,exist_ok=True)
             shutil.copyfile(path/name,output/name)
             shutil.copyfile(path/'latest.json',output/'latest.json')
+        try:
+            response=requests.get(base_url+'rejected.json',timeout=30)
+            response.raise_for_status()
+            with tempfile.TemporaryDirectory() as temporary:
+                path=Path(temporary)
+                (path/'rejected.json').write_bytes(response.content)
+                words=load_rejected_list(path)
+            if words:
+                update_rejected(output,seed=words,learned=set())
+        except (requests.RequestException,OSError) as exc:
+            print(f'Published rejected list unavailable: {exc}')
         return True
     except (requests.RequestException,ValueError,KeyError,OSError) as exc:
         print(f'Published data unavailable; using checked-in snapshot: {exc}')
         return False
 
 
-def generate(game):
+def generate(game,blocked=frozenset()):
     from scripts.setup_data import main as setup
     from .data import prepare
     start=time.perf_counter()
     if setup([])!=0:
         raise RuntimeError('Dataset setup failed.')
     sim,graph=prepare((game.tl,game.br),progress=print)
-    result=build_daily(game,sim,graph,ServerClient(),revision=revision())
+    result=build_daily(game,sim,graph,ServerClient(),revision=revision(),blocked=blocked)
     result['timings']['total']=time.perf_counter()-start
     return result
 
@@ -88,9 +127,15 @@ def main(argv=None):
     args=parser.parse_args(argv)
     if args.previous_url:
         restore_published(args.previous_url,args.output)
+    seed=load_rejected(DATA_DIR/'rejected_words.txt')
     try:
         game=fetch_game()
-        status=update(args.output,game,revision(),generate,force=args.force)
+        blocked=update_rejected(args.output,seed=seed,learned=set())
+        status=update(args.output,game,revision(),lambda game:generate(game,blocked),force=args.force)
+        if status['changed']:
+            learned=rejected_words(load_bundle(args.output))
+            status['rejected_words_learned']=sorted(learned-blocked)
+            update_rejected(args.output,seed=seed,learned=learned)
     except Exception as exc:
         # A complete bootstrap or previously published artifact still permits
         # unrelated website updates when the game's endpoint is unavailable.

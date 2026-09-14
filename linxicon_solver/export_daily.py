@@ -12,6 +12,7 @@ import subprocess
 import time
 
 import numpy as np
+import re
 
 from .board import Board
 from .daily import fetch_game
@@ -70,10 +71,23 @@ def _relationship(sim, a, b, boost):
     return dict(kind='lemma', label='WordNet lemma or inflection relationship')
 
 
-def build_daily(game, sim, graph, client, *, revision: str) -> dict:
+REJECTION = re.compile(r'^(?P<word>[a-z]+): "(?P=word)" (not found in dictionary|is not allowed)')
+
+
+def rejected_words(bundle) -> set[str]:
+    """Words the game's dictionary rejected while verifying this bundle's candidates."""
+    found = set()
+    for candidate in bundle.get('candidates', []):
+        match = REJECTION.match(candidate.get('error') or '')
+        if match:
+            found.add(match.group('word'))
+    return found
+
+
+def build_daily(game, sim, graph, client, *, revision: str, blocked=frozenset()) -> dict:
     started = time.perf_counter()
     events = []
-    chains = graph.shortest_chains(game.tl, game.br, k=5, observer=events.append)
+    chains = graph.shortest_chains(game.tl, game.br, k=5, observer=events.append, blocked=blocked)
     search_seconds = time.perf_counter() - started
     discoveries = [e for e in events if e['type'] == 'discover']
     complete = next((e for e in reversed(events) if e['type'] == 'complete'),
@@ -228,7 +242,9 @@ def main(argv=None):
     start = time.perf_counter()
     game = fetch_game()
     sim, graph = prepare((game.tl,game.br), progress=print)
-    result = build_daily(game, sim, graph, ServerClient(), revision=revision())
+    from .vocab import load_rejected
+    from .data import DATA_DIR
+    result = build_daily(game, sim, graph, ServerClient(), revision=revision(), blocked=load_rejected(DATA_DIR/'rejected_words.txt'))
     result['timings']['total'] = time.perf_counter()-start
     manifest = write_bundle(result, args.output)
     print(json.dumps(manifest, indent=2))

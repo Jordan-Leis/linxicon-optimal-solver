@@ -26,3 +26,17 @@ def test_filter_words_applies_validity_and_min_zipf():
 def test_filter_words_dedupes_and_sorts():
     out = filter_words(["setting", "chest", "chest"], min_zipf=0, zipf=lambda w: 5.0)
     assert out == ["chest", "setting"]
+
+
+def test_load_rejected_reads_words_and_ignores_comments(tmp_path):
+    from linxicon_solver.vocab import load_rejected
+    path = tmp_path / "rejected_words.txt"
+    path.write_text("# words the game's dictionary rejected\nfete\n\nFetes \nbahai # seen 2026-09-12\n")
+    assert load_rejected(path) == {"fete", "fetes", "bahai"}
+    assert load_rejected(tmp_path / "missing.txt") == set()
+
+
+def test_shipped_rejected_words_include_known_rejections():
+    from linxicon_solver.data import DATA_DIR
+    from linxicon_solver.vocab import load_rejected
+    assert {"fete", "fetes", "bahai", "connexion"} <= load_rejected(DATA_DIR / "rejected_words.txt")

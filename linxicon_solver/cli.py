@@ -7,10 +7,10 @@ import sys
 
 from .board import Board
 from .daily import fetch_game
-from .data import prepare
+from .data import DATA_DIR, prepare
 from .rules import MAX_WORDS, THRESHOLD
 from .server import MissingVectorError, ServerClient, ServerError, WordRejectedError
-from .vocab import DEFAULT_MIN_ZIPF, is_valid_word
+from .vocab import DEFAULT_MIN_ZIPF, is_valid_word, load_rejected
 
 
 def positive_int(value: str) -> int:
@@ -73,7 +73,8 @@ def main(argv=None) -> int:
         for word in starters:
             if word not in sim.vectors:
                 raise ValueError(f'Starter "{word}" has no Numberbatch vector.')
-        chains = graph.shortest_chains(*starters, k=args.alternates)
+        blocked = load_rejected(DATA_DIR / 'rejected_words.txt')
+        chains = graph.shortest_chains(*starters, k=args.alternates, blocked=blocked)
         if not chains:
             raise ValueError('No path in this vocabulary and scoring model. Try --vocab full or a lower --min-zipf.')
         if len(chains[0].words) > MAX_WORDS:

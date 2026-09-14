@@ -80,3 +80,30 @@ def test_restore_validates_before_replacing_snapshot(tmp_path, model, monkeypatc
     (remote/manifest['file']).write_bytes(b'corrupt')
     assert not publish.restore_published('https://example.test/data',target)
     assert (target/'latest.json').read_bytes()==before
+
+
+def test_rejected_list_merges_seed_previous_and_new_rejections(tmp_path):
+    (tmp_path/'rejected.json').write_text(json.dumps({'schema_version':1,'words':['bahai','fete']}))
+    result=publish.update_rejected(tmp_path,seed={'connexion','fete'},learned={'fetes'})
+    data=json.loads((tmp_path/'rejected.json').read_text())
+    assert data['schema_version']==1 and data['words']==['bahai','connexion','fete','fetes']
+    assert result==set(data['words'])
+    assert publish.update_rejected(tmp_path,seed=set(),learned=set())==set(data['words'])
+    assert publish.load_rejected_list(tmp_path)=={'bahai','connexion','fete','fetes'}
+    assert publish.load_rejected_list(tmp_path/'nowhere')==set()
+
+
+def test_restore_also_fetches_the_published_rejected_list(tmp_path, model, monkeypatch):
+    game,sim,graph=model
+    target=tmp_path/'site';remote=tmp_path/'remote'
+    write_bundle(build_daily(game,sim,graph,Client(),revision='old'),target)
+    write_bundle(build_daily(game,sim,graph,Client(),revision='new'),remote)
+    (remote/'rejected.json').write_text(json.dumps({'schema_version':1,'words':['fete']}))
+    class Response:
+        def __init__(self,raw):self.content=raw
+        def raise_for_status(self):pass
+        def json(self):return json.loads(self.content)
+    def get(url,**kwargs):return Response((remote/url.rsplit('/',1)[1]).read_bytes())
+    monkeypatch.setattr(publish.requests,'get',get)
+    assert publish.restore_published('https://example.test/data',target)
+    assert publish.load_rejected_list(target)=={'fete'}
