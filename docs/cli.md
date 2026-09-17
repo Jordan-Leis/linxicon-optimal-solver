@@ -15,7 +15,7 @@ python -m linxicon_solver chest setting --no-wordnet --no-simulate
 | Option | Behavior |
 | --- | --- |
 | Two positional words | Solve a supplied pair; normalize uppercase input. |
-| `--today` / `--game ID` | Fetch today's or a numbered puzzle; cannot be combined with positional words. Today falls back to the homepage Play form when `/game` serves no puzzle. |
+| `--today` / `--game ID` | Fetch today's puzzle from `linxicon.com/play/daily`; cannot be combined with positional words. The game no longer serves past puzzles, so `--game ID` only succeeds when ID is today's and otherwise exits with a clear error. The puzzle date is the UTC date at fetch time (the page no longer states it). |
 | `--alternates N` | Print up to **N total candidates**, default 5, all at the shortest local length. |
 | `--vocab common` | Default: ENABLE words with English Zipf frequency at least **2.0**. |
 | `--vocab full` | Include all valid ENABLE words without a frequency floor. |
